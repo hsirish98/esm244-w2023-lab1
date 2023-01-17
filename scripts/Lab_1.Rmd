@@ -1,0 +1,14 @@
+---
+title: "Lab 1: Wrangling Review"
+author: "Hannah Irish"
+date: "2023-01-17"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=TRUE, echo=TRUE, warning=FALSE}
+knitr::opts_chunk$set(message=TRUE, echo=TRUE, warning=FALSE)
+library(tidyverse)
+library(here)
+library(sf)
+#library(tmap)
+```
