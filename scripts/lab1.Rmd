@@ -1,0 +1,84 @@
+---
+title: 'Lab 1: Getting Set Up'
+author: "Hannah Irish"
+date: "2023-01-19"
+output: html_document
+---
+
+```{r setup, echo = TRUE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(tidyverse)
+library(sf)
+library(tmap)
+```
+
+
+### Read in Data
+
+```{r, warning=FALSE}
+sf_trees <- read_csv(here("data", "sf_trees.csv"))
+
+summary(sf_trees)
+
+
+```
+
+```{r}
+sf_trees_status <- sf_trees %>% 
+  group_by(legal_status)%>%
+  summarize(tree_count = n())
+
+top_5_status <- sf_trees %>% 
+  group_by(legal_status) %>%
+  summarize(tree_count = n()) %>%
+  slice_max(tree_count, n = 5) %>%
+  arrange(tree_count)
+  
+```
+
+
+### Plot top 5 Legal Status
+
+```{r}
+ggplot(data = top_5_status, 
+       aes(x = fct_reorder(legal_status, tree_count), 
+           y = tree_count)) +
+  geom_col() +
+  labs(y = "Tree count", x = "Legal status") +
+  coord_flip() +
+  theme_minimal()
+```
+
+
+### Keep Observations where legal status is "Permitted Site" and caretaker is "MIA"
+
+```{r}
+permitted_mta <- sf_trees %>%
+  filter(legal_status=="Permitted Site" & caretaker=="MIA") 
+  
+```
+
+### Keep Blackwood acacia trees, keep only legal_status, date, latitude, longitude columns
+
+```{r}
+blackwood_acacia <- sf_trees %>%
+  filter(str_detect(species, "Blackwood Acacia")) %>%
+  select(legal_status, date, latitude, longitude)
+
+## plot of acacia
+ggplot(data = blackwood_acacia, aes(x=latitude, y=longitude)) +
+  geom_point()
+```
+
+### Use tidyr::separate() to separate one column into multiple, and tidyr::unite() to join
+
+```{r}
+sf_trees_sep <- sf_trees %>%
+  separate(species, into = c('spp_scientific', 'spp_common'), sep = ' :: ')
+
+sf_trees_join <- sf_trees %>%
+  unite("id_status", tree_id:species, sep = "_NeW_")
+
+```
+
